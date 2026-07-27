@@ -19,8 +19,7 @@ behavioral-science study (experiment, survey, or pilot). The output should:
 - Be **easy to edit**: the user will tweak wording and numbers before
   sharing
 - Optionally convert to a **slide-style presentation** (HTML or LaTeX
-  Beamer) when the user is presenting live rather than sharing a written
-  summary
+  Beamer) for a live talk instead of a written summary
 
 ---
 
@@ -29,49 +28,56 @@ behavioral-science study (experiment, survey, or pilot). The output should:
 Before writing, confirm:
 
 1. **What study / pilot is this?** (study number, brief topic)
-2. **What is the key finding / message?** (one sentence if possible)
-3. **What figures / tables exist?** (are there saved image files to embed,
-   or should placeholders be left?)
+2. **What is the key finding?** (one sentence if possible)
+3. **What figures / tables exist?** (saved image files to embed, or leave
+   placeholders?)
 4. **Who is this for?** (advisor, lab meeting, co-author, personal record)
-   — this affects tone and how much procedural detail to include, not the
-   underlying structure
-5. **Output format:** Markdown (default) vs. HTML slide-style vs. LaTeX
-   Beamer?
-6. **Is this a pilot report or a full study report?**
-   - Pilot → include "What worked / what needs fixing" section
-   - Full study → include implications / next steps
+   — affects tone and how much procedural detail to include, not the
+   structure itself
+5. **Output format:** Markdown (default), HTML slide-style, or LaTeX Beamer?
+6. **Pilot or full study?**
+   - Pilot → include a "what worked / what needs fixing" section
+   - Full study → include implications
 
 ---
 
-## STEP 1 — Report Structure
+## STEP 1 — Report structure
 
-Use this section order for **every** report. Skip sections that don't apply
-(e.g., no mediation? skip that section). Keep it to the point — one key
-idea per section.
+Default section order for the Markdown report. Skip sections that don't
+apply (e.g., no mediation? skip that section).
 
 ```
 1. Study Overview
 2. Design & Procedure
 3. Participants & Data Quality
-4. Results — Manipulation Check
-5. Results — Main DVs
-6. Results — Secondary / Exploratory
-7. Results — Mediation / Moderation (if applicable)
-8. Summary & Implications / Next Steps
+4. Results — one table with every construct, N and M (SD) per condition,
+   and the key test statistics (see STEP 2)
+5. Mediation / Moderation (if applicable)
+6. Summary & Implications
 ```
 
-For pilot reports, replace section 8 with:
+For pilot reports, replace section 6 with:
 
 ```
-8. What Worked / Issues Found / Changes for Next Study
+6. What Worked / Issues Found / Changes for Next Study
 ```
+
+**Results is one table, not separate sections.** Manipulation checks, main
+DVs, and secondary/exploratory DVs all go in the same table as rows —
+construct name, *N* and *M* (*SD*) per condition, test statistic. Don't
+split them into separate headers with their own prose, and don't add a
+figure for a manipulation check — it's just a row in the table.
+
+**Exception — HTML slides:** keep manipulation check, main DVs, and
+secondary/exploratory as separate slides there. One idea per slide is the
+point of a slide deck, so don't collapse them.
 
 ---
 
 ## STEP 2 — Markdown format (default)
 
-Use this template. Fill in every `[bracket]`; delete sections that don't
-apply rather than leaving them empty.
+Fill in every `[bracket]`; delete sections that don't apply rather than
+leaving them empty.
 
 ```markdown
 # [Study Number & Title]
@@ -103,34 +109,22 @@ apply rather than leaving them empty.
 - Excluded (duplicate / incomplete): [n]
 - **Final sample:** *N* = [N_final]
 
-| Condition | *N* |
-|---|---|
-| [Cond 1] | [n1] |
-| [Cond 2] | [n2] |
-
-## Manipulation Check
-
-[Was the manipulation successful?]
-
-> [Key stat: e.g., *t*(N) = X.XX, *p* = .XXX, *d* = X.XX — condition
-> successfully raised/lowered [measure] relative to control]
-
-![Manipulation check figure]([figure_path.png])
-*Figure 1. [Caption]*
-
-## Main Results
+## Results
 
 **[Key finding headline — one sentence]**
 
-**[DV 1 name]**
-- *F*([df1], [df2]) = [F], *p* = [p], η²p = [eta]
-- [Pairwise: condition A > condition B, *p* = .XXX]
+| Construct | [Condition A] *M* (*SD*) [*n*] | [Condition B] *M* (*SD*) [*n*] | Test statistic | *p* | Effect size |
+|---|---|---|---|---|---|
+| [Manipulation check] | [M (SD) n] | [M (SD) n] | *t*([df]) = [t] | [.XXX] | *d* = [X.XX] |
+| [DV 1] | [M (SD) n] | [M (SD) n] | *F*([df1],[df2]) = [F] | [.XXX] | η²p = [X.XX] |
+| [DV 2] | [M (SD) n] | [M (SD) n] | [stat] | [.XXX] | [d / η²p] |
 
-**[DV 2 name]**
-- [stat]
+For a factorial design, add one *M* (*SD*) column per cell rather than per
+factor. Note any significant pairwise comparisons as a line below the
+table, not a separate section.
 
 ![Main results]([figure_path.png])
-*Figure 2. [Caption]*
+*Figure 1. [Caption — main DVs only; manipulation checks don't need a figure]*
 
 ## Mediation / Moderation
 
@@ -141,16 +135,13 @@ apply rather than leaving them empty.
 - Indirect effect: *B* = [X], 95% CI [LL, UL] — [significant / not]
 - Direct effect: *B* = [X], *p* = [p]
 
-## Summary & Next Steps
+## Summary
 
 [One-line takeaway]
 
 - [Key finding 1]
 - [Key finding 2]
 - [Limitation or open question]
-
-**Next:**
-- [Planned study / change / pre-registration]
 ```
 
 ---
@@ -158,8 +149,7 @@ apply rather than leaving them empty.
 ## STEP 3 — HTML slide-style format (optional, for presentations)
 
 Use this when the user is presenting live rather than sharing a written
-summary. It renders as a clean, slide-like scrollable page; each `<section>`
-is one "slide."
+summary. Each `<section>` is one "slide."
 
 ```html
 <!DOCTYPE html>
@@ -290,10 +280,6 @@ is one "slide."
   <div class="box">
     [Key stat: e.g., t(N) = X.XX, p = .XXX, d = X.XX]
   </div>
-  <figure>
-    <img src="[figure_path.png]" alt="Manipulation check figure">
-    <figcaption>Figure 1. [Caption]</figcaption>
-  </figure>
 </section>
 
 <section>
@@ -332,16 +318,12 @@ is one "slide."
 </section>
 
 <section>
-  <h1>Summary & Next Steps</h1>
+  <h1>Summary</h1>
   <h2>[One-line takeaway]</h2>
   <ul>
     <li>[Key finding 1]</li>
     <li>[Key finding 2]</li>
     <li>[Limitation or open question]</li>
-  </ul>
-  <p><strong>Next:</strong></p>
-  <ul>
-    <li>[Planned study / change / pre-registration]</li>
   </ul>
 </section>
 
@@ -353,9 +335,8 @@ is one "slide."
 
 ## STEP 4 — LaTeX / Beamer format (optional, when requested)
 
-Use this when the user asks for LaTeX / Overleaf output. It compiles
-directly in Overleaf and exports to PDF; use Pandoc to convert to PPTX if
-needed.
+Compiles directly in Overleaf and exports to PDF; use Pandoc to convert to
+PPTX if needed.
 
 ```latex
 \documentclass[aspectratio=169, 11pt]{beamer}
@@ -418,13 +399,11 @@ needed.
   \end{columns}
 \end{frame}
 
-\begin{frame}{Summary \& Next Steps}
+\begin{frame}{Summary}
   \begin{itemize}
     \item [Finding 1]
     \item [Finding 2]
   \end{itemize}
-  \vspace{1em}
-  \textbf{Next:} [Planned action]
 \end{frame}
 
 \end{document}
@@ -434,25 +413,27 @@ needed.
 
 ## STEP 5 — Filling in the content
 
-When filling the template, pull content from:
+Pull content from:
 1. The analysis output (F-stats, t-stats, p-values, effect sizes)
 2. The user's description of the study / findings
 3. Any figures provided
 
-**Formatting stats in the report (APA style):**
+**Formatting stats (APA style):**
 - Italicize test statistics: *F*, *t*, *p*, *d*, *r* (Markdown: `*F*`;
   HTML: `<em>F</em>`)
-- Effect sizes: always include (*d*, η²p, or indirect effect CI)
-- *p*-values: report to 3 decimal places; `p < .001` if below
-- Round means to 2 decimal places
-- Never fabricate or estimate a number — leave `[INSERT STAT]` explicitly
-  if a value hasn't been confirmed from the analysis output
+- Always include an effect size (*d*, η²p, or indirect effect CI)
+- *p*-values to 3 decimal places; `p < .001` if below
+- Means to 2 decimal places
+- Never estimate a number — leave `[INSERT STAT]` if a value hasn't been
+  confirmed from the analysis output
 
 ---
 
 ## STEP 6 — Saving and converting
 
-- **Save as:** `[study_name]_report_[date].md` (or `.html` / `.tex`)
+- **Write the report to an actual file** — don't just paste the content
+  into the chat reply. Save as `[study_name]_report_[date].md` (or `.html`
+  / `.tex`) in the project folder.
 - **Markdown → shareable doc:** paste directly into email, Notion, or a
   GitHub issue/PR — no conversion needed
 - **HTML → PPTX:** open in Chrome → Print → Save as PDF → import into
@@ -464,10 +445,10 @@ When filling the template, pull content from:
 
 ## Checklist before delivering the report
 
+- [ ] Report saved as a real file (`.md` / `.html` / `.tex`), not just shown in chat
 - [ ] Every section has one clear headline
+- [ ] Results is one consolidated table (Markdown/LaTeX) — no separate manipulation-check figure
 - [ ] Stats are APA-formatted (italicized statistic symbols, 3 decimal places for *p*)
-- [ ] Figures are either embedded or clearly placeholder-labeled
 - [ ] No section is overloaded — keep bullets short
 - [ ] Pilot reports include a "what needs fixing" section
 - [ ] No number is invented — anything unconfirmed is left as an explicit placeholder
-- [ ] File is saved with the correct extension (`.md` / `.html` / `.tex`) in the project folder

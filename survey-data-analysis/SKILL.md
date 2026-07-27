@@ -22,19 +22,18 @@ placeholder to be replaced by what the user tells you in STEP 0.
 
 ## Hard rule — never read participant ID columns (IRB)
 
-Never open, print, display, or otherwise inspect the **values** of any
+Never open, print, or otherwise inspect the **values** of any
 participant-identifying column in a CSV — e.g. `PROLIFIC_PID`,
 `participantId`, `ResponseId`, `MTurkID`, `IPAddress`, email, or name
-columns. This is an IRB data-handling requirement, not a style preference:
-an AI tool should never actually read identifiable participant data.
+columns. This is an IRB data-handling requirement: an AI tool should never
+actually read identifiable participant data.
 
-This does **not** block using those columns in code — filtering,
-deduplicating, or joining on an ID column by *name* is fine and necessary
-(e.g. `distinct(PROLIFIC_PID, .keep_all = TRUE)`). What's off-limits is
-inspecting their contents: don't `View()`, `print()`, `head()`, or otherwise
-surface actual ID/IP values in a chunk, console output, or your own reasoning.
-When skimming a CSV's structure, look at column *names* only, never at row
-values in ID columns.
+Using those columns *by name* in code is fine and necessary — filtering,
+deduplicating, or joining on an ID column (e.g.
+`distinct(PROLIFIC_PID, .keep_all = TRUE)`). What's off-limits is
+inspecting their contents: no `View()`, `print()`, `head()`, or other way of
+surfacing actual ID/IP values. When skimming a CSV's structure, look at
+column names only, never at row values in ID columns.
 
 ---
 
@@ -43,17 +42,15 @@ values in ID columns.
 ### A. Files to gather
 1. **The CSV data file.** Needed to see column names and write the cleaning
    code — see the hard rule above on never reading ID column values.
-2. **The survey export**, to know exact question wording, item order, and
-   response scale anchors for the Measures section. Ask for the **Word
-   (.docx) export** from Qualtrics (Tools → Import/Export → Export Survey to
-   Word) rather than the QSF — the docx has the same question content at a
-   fraction of the tokens the raw QSF JSON would cost. Fall back to the QSF
+2. **The survey export**, for exact question wording, item order, and scale
+   anchors. Ask for the **Word (.docx) export** from Qualtrics
+   (Tools → Import/Export → Export Survey to Word) rather than the QSF —
+   same question content, a fraction of the tokens. Fall back to the QSF
    only if a docx isn't available.
-   - Before starting analysis, confirm the docx actually contains
-     everything needed: full text and response options for every measure
-     referenced in STEP 0 below, not just a partial export. If anything a
-     measure needs is missing or seems truncated, ask the user for it rather
-     than guessing at wording or scale points.
+   - Confirm the docx covers every measure used below before starting
+     analysis — full text and response options, not a partial export. If
+     anything's missing or looks truncated, ask the user for it rather than
+     guessing at wording or scale points.
 
 ### B. Study Design
 3. **How many between-subjects factors?** (0 = correlational; 1 = simple;
@@ -415,24 +412,24 @@ summary(lm(dv ~ effect_condition * mc_trait, data = clean_data))
 
 ---
 
-## STEP 7 — Render it before calling the file done
+## STEP 7 — Render it, then close the loop
 
-Writing the QMD isn't the finish line — a script with a typo, a missing
-package, or a wrong column name doesn't reveal itself until it's actually
-run. Before telling the user the file is ready:
+Writing the QMD isn't the finish line — a typo, a missing package, or a
+wrong column name won't surface until the file actually runs. Before
+calling it done:
 
-- Check whether you have terminal access to render it yourself, e.g.
-  `quarto render FILENAME.qmd` (or `Rscript -e 'rmarkdown::render("FILENAME.qmd")'`
-  if Quarto isn't set up). If it renders cleanly, say so. If it errors, fix
-  the issue and re-render rather than handing over a script you haven't
-  confirmed runs.
-- If you don't have terminal access, or R/Quarto isn't available in the
-  environment, say that explicitly and ask the user to render it themselves
-  (in RStudio, the Quarto CLI, or their usual setup) rather than assuming it
-  will work.
-- Either way, don't report the analysis as "done" on the strength of the
-  code looking correct alone — untested R code is a hypothesis about what
-  will happen, not a confirmed result.
+- If you have terminal access, render it yourself: `quarto render
+  FILENAME.qmd` (or `Rscript -e 'rmarkdown::render("FILENAME.qmd")'` without
+  Quarto). If it errors, fix it and re-render. Report what ran cleanly and
+  flag anything that didn't.
+- If you can't render it (no terminal access, R/Quarto not installed), say
+  so plainly and give the exact command for the user to run it themselves
+  (in RStudio, the Quarto CLI, or their usual setup). Don't call the
+  analysis "done" just because the code looks correct — code you haven't
+  run can still be wrong.
+- Ask whether they want a written **results summary** of the output. If
+  yes, hand off to the `results-summary-report` skill — it turns the stats
+  this QMD produces into a clean report.
 
 ---
 
@@ -515,39 +512,35 @@ since the same patterns creep into both:
   YAML — hand-typed numbers like `## 1. Data`, `## 4. Main analysis` should
   become `## Data`, `## Main analysis`.
 - **Remove rationale-style parentheticals from headers**, e.g. `## Main
-  analysis (preregistered: strict 1:1 matching)` → `## Main analysis`.
-  That's the header explaining its own reasoning, which reads as AI
-  narration. **Keep** parentheticals that are pure citations needed for
-  reproducibility (pre-registration IDs, filenames, table numbers) — those
-  aren't interpretation, they're documentation a reviewer needs.
+  analysis (preregistered: strict 1:1 matching)` → `## Main analysis`. A
+  header explaining its own reasoning reads like generated commentary, not
+  something a person would write. **Keep** parentheticals that are pure
+  citations a reviewer needs (pre-registration IDs, filenames, table
+  numbers) — those are documentation, not interpretation.
 - **Remove hypothesis-statement headers/prose**, e.g. `### H2: Group B
   reports greater X than Group A.` as a header, or the same sentence as
   bare prose above a chunk. Replace with a plain header naming the DV
   (`### Perceived ambiguity`) or delete the line if a clear header already
-  exists — the reader can see the test direction from the code below.
-- **Remove `cat("label:", value, "\n")` print-wrapper chunks.** Replace
-  with the bare expression so Quarto auto-prints the number without manual
-  string-formatting scaffolding.
+  exists — the code below already shows the test direction.
+- **Remove `cat("label:", value, "\n")` print-wrapper chunks.** Use the
+  bare expression instead, so Quarto auto-prints the number without manual
+  string formatting.
 - **Remove top-of-file intro paragraphs** that just restate provenance
   (e.g., "Reproduces the preregistered analysis from the cleaned data
-  produced by X_cleaning.qmd") — this repeats across every file in a
-  project and reads as AI narration once you notice the pattern. Folder
-  structure and filenames already make provenance clear.
+  produced by X_cleaning.qmd") — folder structure and filenames already
+  make that clear, so it's just filler.
 - **Remove methodology-description prose under a header** that just
-  restates what the code chunk directly below already shows. Applies
-  equally to short section-label sentences like "Build the analysis
-  datasets:" sitting alone above a chunk.
+  restates what the code chunk directly below already shows, including
+  short section-label sentences like "Build the analysis datasets:" sitting
+  alone above a chunk.
 - **Remove standalone "why is this empty/missing" comments** sitting alone
   in an otherwise-empty chunk. Delete the whole chunk (and its header, if
-  the header has no other content under it) rather than leaving a
-  comment-only placeholder.
-- **Keep** comments that are directly attached to a real, executing line
-  and needed to understand it — e.g. a note on which sample a dataset
-  represents, or why an item is reverse-worded. These aren't narration,
-  they're the only place a non-obvious variable name or scale direction is
-  explained. The test: does the comment explain something the code doesn't
-  already show (rationale/absence/narration → cut), or is it the only
-  label for an otherwise-opaque line (necessary → keep)?
+  it has no other content) rather than leaving a comment-only placeholder.
+- **Keep** comments attached to a real, executing line that are needed to
+  understand it — e.g. which sample a dataset represents, or why an item is
+  reverse-worded. Test: does the comment explain something the code doesn't
+  already show (cut if it's just rationale or restating the obvious), or is
+  it the only label for an otherwise-opaque line (keep)?
 - Re-render every file you touch and confirm it still exits cleanly before
   moving on; these are text/formatting-only changes and should never alter
   any computed number.
