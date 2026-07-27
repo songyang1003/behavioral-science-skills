@@ -20,70 +20,100 @@ placeholder to be replaced by what the user tells you in STEP 0.
 
 ---
 
-## STEP 0 — Gather context before writing a single line of code
+## Hard rule — never read participant ID columns (IRB)
 
-Ask (or infer from the CSV / conversation) the answers to all of the
-following questions. Do not skip any. If the user provides the CSV, skim the
-column names first.
+Never open, print, display, or otherwise inspect the **values** of any
+participant-identifying column in a CSV — e.g. `PROLIFIC_PID`,
+`participantId`, `ResponseId`, `MTurkID`, `IPAddress`, email, or name
+columns. This is an IRB data-handling requirement, not a style preference:
+an AI tool should never actually read identifiable participant data.
 
-### A. Study Design
-1. **How many between-subjects factors?** (0 = correlational; 1 = simple;
+This does **not** block using those columns in code — filtering,
+deduplicating, or joining on an ID column by *name* is fine and necessary
+(e.g. `distinct(PROLIFIC_PID, .keep_all = TRUE)`). What's off-limits is
+inspecting their contents: don't `View()`, `print()`, `head()`, or otherwise
+surface actual ID/IP values in a chunk, console output, or your own reasoning.
+When skimming a CSV's structure, look at column *names* only, never at row
+values in ID columns.
+
+---
+
+## STEP 0 — Gather context and files before writing a single line of code
+
+### A. Files to gather
+1. **The CSV data file.** Needed to see column names and write the cleaning
+   code — see the hard rule above on never reading ID column values.
+2. **The survey export**, to know exact question wording, item order, and
+   response scale anchors for the Measures section. Ask for the **Word
+   (.docx) export** from Qualtrics (Tools → Import/Export → Export Survey to
+   Word) rather than the QSF — the docx has the same question content at a
+   fraction of the tokens the raw QSF JSON would cost. Fall back to the QSF
+   only if a docx isn't available.
+   - Before starting analysis, confirm the docx actually contains
+     everything needed: full text and response options for every measure
+     referenced in STEP 0 below, not just a partial export. If anything a
+     measure needs is missing or seems truncated, ask the user for it rather
+     than guessing at wording or scale points.
+
+### B. Study Design
+3. **How many between-subjects factors?** (0 = correlational; 1 = simple;
    2 = factorial, e.g., 2×2)
-2. **How many cells / conditions?** What are the condition labels?
+4. **How many cells / conditions?** What are the condition labels?
    - 2-cell → t-test or one-way ANOVA
    - 3-cell → one-way ANOVA + pairwise emmeans
    - 2×2 factorial → two-way ANOVA + interaction
    - No conditions → regression / correlational
-3. **Is there a within-subjects factor?** (repeated measures)
-4. **What column holds the condition?** (e.g., `condition`, `group`, `arm`)
-5. **What is the participant ID column?** (e.g., `PROLIFIC_PID`,
-   `participantId`, `ResponseId`, `MTurkID`)
+5. **Is there a within-subjects factor?** (repeated measures)
+6. **What column holds the condition?** (e.g., `condition`, `group`, `arm`)
+7. **What is the participant ID column?** (e.g., `PROLIFIC_PID`,
+   `participantId`, `ResponseId`, `MTurkID`) — the name only, per the hard
+   rule above.
 
-### B. DVs and Coding
-6. **What are the main DVs?** For each DV:
+### C. DVs and Coding
+8. **What are the main DVs?** For each DV:
    - Column name(s) (e.g., items `dv_1`, `dv_2` → composite `dv_composite`)
    - Scale range (1–5, 1–7, etc.)
    - Number of items → composite = `rowMeans` / sum / divided
    - Any **reverse-coded** items? (formula: `scale_max + 1 - item`,
      e.g., for a 7-point scale: `8 - item`)
    - Expected alpha (if known)
-7. **Is any DV binary / count?** (e.g., yes/no outcome, an integer score)
+9. **Is any DV binary / count?** (e.g., yes/no outcome, an integer score)
    If binary → chi-square + logistic regression
    If count → also check Poisson / negative binomial
-8. **What trait / covariate measures exist?** Note any prefix patterns
-   used for multi-item scales (e.g., `hexaco_`, `narc_`, `swb_`) so items can
-   be selected with `starts_with()`.
+10. **What trait / covariate measures exist?** Note any prefix patterns
+    used for multi-item scales (e.g., `hexaco_`, `narc_`, `swb_`) so items
+    can be selected with `starts_with()`.
 
-### C. Data Cleaning Specifics
-9. **How is the sample deduplicated / restricted to valid respondents?**
-   Ask what the study uses: participant ID, IP address, completion status,
-   consent column, etc. Do not assume a specific platform's field names —
-   confirm the exact column names and values from the user or the CSV
-   header.
-10. **Attention check(s)?** Ask what the attention-check item(s) are and
+### D. Data Cleaning Specifics
+11. **How is the sample deduplicated / restricted to valid respondents?**
+    Ask what the study uses: participant ID, IP address, completion status,
+    consent column, etc. Do not assume a specific platform's field names —
+    confirm the exact column names and values from the user or the CSV
+    header (names only, never the values in ID columns).
+12. **Attention check(s)?** Ask what the attention-check item(s) are and
     what the passing value/string is. Different studies (and different
     platforms) use different formats — don't assume a fixed pattern.
-11. **Comprehension checks?** (condition-specific filtering, e.g.
+13. **Comprehension checks?** (condition-specific filtering, e.g.
     `comprehension == 1` required only for one condition)
-12. **Any study-specific extra cleaning?** (e.g., drop first N rows of a
+14. **Any study-specific extra cleaning?** (e.g., drop first N rows of a
     condition, merge in data from a second file, etc.)
-13. **Extra header/metadata rows?** Some export formats (Qualtrics in
+15. **Extra header/metadata rows?** Some export formats (Qualtrics in
     particular) include 1–2 extra metadata rows below the column names. If
     so, add `slice(-c(1,2))` (or however many rows) right after
     `read.csv()`.
-14. **Does the study have bonus pay or behavioral scoring?**
+16. **Does the study have bonus pay or behavioral scoring?**
     (e.g., a performance score converted into a binary/continuous outcome)
 
-### D. Analysis Plan
-15. **Primary analysis:** t-test, one-way ANOVA, two-way ANOVA (specify
+### E. Analysis Plan
+17. **Primary analysis:** t-test, one-way ANOVA, two-way ANOVA (specify
     which), logistic regression, or multiple regression?
-16. **Mediation?** If yes: DV, IV (contrast-coded), mediator(s),
+18. **Mediation?** If yes: DV, IV (contrast-coded), mediator(s),
     PROCESS model number (4 = simple, 6 = serial two-mediator)
-17. **Moderation / interaction?** If yes: IV × moderator, which DV?
+19. **Moderation / interaction?** If yes: IV × moderator, which DV?
     Mean-center both before `lm()`?
-18. **Any exploratory regressions?** (trait measures as predictors,
+20. **Any exploratory regressions?** (trait measures as predictors,
     including interactions with condition)
-19. **Reproducibility seed:** ask what seed the user's lab standardizes on
+21. **Reproducibility seed:** ask what seed the user's lab standardizes on
     for bootstrapped analyses (e.g., PROCESS). If none exists, pick one and
     note it explicitly in the file so it's easy to find and reuse.
 
@@ -385,6 +415,27 @@ summary(lm(dv ~ effect_condition * mc_trait, data = clean_data))
 
 ---
 
+## STEP 7 — Render it before calling the file done
+
+Writing the QMD isn't the finish line — a script with a typo, a missing
+package, or a wrong column name doesn't reveal itself until it's actually
+run. Before telling the user the file is ready:
+
+- Check whether you have terminal access to render it yourself, e.g.
+  `quarto render FILENAME.qmd` (or `Rscript -e 'rmarkdown::render("FILENAME.qmd")'`
+  if Quarto isn't set up). If it renders cleanly, say so. If it errors, fix
+  the issue and re-render rather than handing over a script you haven't
+  confirmed runs.
+- If you don't have terminal access, or R/Quarto isn't available in the
+  environment, say that explicitly and ask the user to render it themselves
+  (in RStudio, the Quarto CLI, or their usual setup) rather than assuming it
+  will work.
+- Either way, don't report the analysis as "done" on the strength of the
+  code looking correct alone — untested R code is a hypothesis about what
+  will happen, not a confirmed result.
+
+---
+
 ## Multi-survey / linked designs
 
 Some studies collect data across two or more linked surveys — e.g. a sender
@@ -450,33 +501,15 @@ data_prereg <- data_full %>%
   ungroup()
 ```
 
-### De-identification for OSF / submission release
-
-Every cleaned CSV that will be shared publicly (OSF, supplementary
-materials) should have identifying columns removed, even though they're
-fine to use in the working/raw files mid-pipeline: participant ID,
-IP address, geolocation, name/email, platform response ID, timing
-metadata, and demographics (age, gender, ethnicity, education, employment,
-income). Compute and report demographics once inside a cleaning QMD (for
-the manuscript's sample-description paragraph) but don't persist them in
-the shared CSV.
-
-Keep: sequential self-generated IDs and any linking/stimulus IDs — these
-identify pairings or stimuli, not participants, so they're fine to retain.
-
-If any measure has an open-ended free-text column (e.g., a
-participant-written response used as a stimulus for other participants), a
-column-name scan for PII isn't enough — do a manual read-through of that
-column before release, since a participant can incidentally type an
-identifying detail into an open field even when every structured column is
-clean.
-
 ---
 
-## Pre-submission QMD cleanup (do this pass right before sharing/submission)
+## Formatting pass for QMD files (run right before sharing/submission)
 
-Apply to **every** `*.qmd` in the project — analysis notebooks and cleaning
-notebooks alike, since the same patterns creep into both:
+This is a **formatting and prose-style pass only** — it never changes
+analysis logic, code behavior, or any computed value. Think of it as
+tidying prose and headers, not editing content. Apply it to **every**
+`*.qmd` in the project — analysis notebooks and cleaning notebooks alike,
+since the same patterns creep into both:
 
 - **Strip manual header numbering** if `number-sections` isn't set in the
   YAML — hand-typed numbers like `## 1. Data`, `## 4. Main analysis` should
@@ -541,6 +574,8 @@ notebooks alike, since the same patterns creep into both:
 
 ## Checklist before delivering the QMD
 
+- [ ] No participant ID / IP / email / name column values were ever read, printed, or inspected — names only
+- [ ] Survey docx (or QSF fallback) confirmed to contain full wording/scale info for every measure used
 - [ ] `ipak()` includes all packages used in the file
 - [ ] Attention-check / cleaning filters match what the user described in STEP 0
 - [ ] All scale items converted to numeric before `psych::alpha()`
@@ -552,3 +587,4 @@ notebooks alike, since the same patterns creep into both:
 - [ ] Reproducibility seed confirmed with the user and used consistently in `process()` calls
 - [ ] File saved as `.qmd` in the same folder as the data CSV
 - [ ] Pairwise adjustment: if pilot, default `adjust = "none"`; if confirmatory, check the pre-registration and ask explicitly before choosing an adjustment method
+- [ ] File rendered successfully (by you, or confirmed by the user) before calling it done
