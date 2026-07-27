@@ -1,10 +1,15 @@
 # Behavioral Science Skills
 
-Two [Claude Code](https://claude.com/claude-code) skills for the survey-experiment
-workflow common in behavioral science (psychology, organizational behavior,
-marketing, and adjacent fields): turning a raw survey data export into a
-reproducible R analysis, and turning finished results into a clean written
-report.
+Two Agent Skills for the survey-experiment workflow common in behavioral
+science (psychology, organizational behavior, marketing, and adjacent
+fields): turning a raw survey data export into a reproducible R analysis,
+and turning finished results into a clean written report.
+
+Written to the shared `SKILL.md` spec (a folder with a `SKILL.md` file
+carrying `name`/`description` frontmatter), so the same files work
+unmodified in both [Claude Code](https://claude.com/claude-code) and
+[Codex CLI](https://developers.openai.com/codex/cli) — only the install
+path differs between the two.
 
 ## Skills
 
@@ -22,8 +27,9 @@ Use them together (data → analysis → report) or independently.
 
 ## Installation
 
-Copy the skill folder(s) you want into your Claude Code skills directory:
+Copy the skill folder(s) you want into the skills directory for your tool.
 
+**Claude Code:**
 ```bash
 # Global (available in every project)
 cp -r survey-data-analysis ~/.claude/skills/
@@ -34,7 +40,19 @@ cp -r survey-data-analysis /path/to/project/.claude/skills/
 cp -r results-summary-report /path/to/project/.claude/skills/
 ```
 
-Claude Code will pick up the `SKILL.md` in each folder automatically.
+**Codex CLI:**
+```bash
+# Global (available in every project)
+cp -r survey-data-analysis ~/.agents/skills/
+cp -r results-summary-report ~/.agents/skills/
+
+# Or repo-local (available only in one project)
+cp -r survey-data-analysis /path/to/project/.agents/skills/
+cp -r results-summary-report /path/to/project/.agents/skills/
+```
+
+Both tools scan their skills directory at startup and pick up each folder's
+`SKILL.md` automatically — no other setup needed.
 
 ## Usage
 
