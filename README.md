@@ -69,15 +69,6 @@ Each skill starts by asking a short set of questions about your study design
 (number of conditions, DV structure, cleaning rules, etc.) before writing
 anything — answer those first for the best result.
 
-## Adapting these skills
-
-These are templates, not a rigid framework. Everything in brackets or
-described as "ask the user" is meant to be filled in with your lab's own
-conventions — column-naming schemes, exclusion rules, reproducibility seeds,
-and house style are all deliberately left open rather than hardcoded. Fork
-and edit `SKILL.md` directly to bake in your own defaults if you'd rather
-skip the STEP 0 questions each time.
-
 ## License
 
 MIT — see [LICENSE](LICENSE).
