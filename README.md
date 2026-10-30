@@ -25,6 +25,9 @@ path differs between the two.
 
 Use them together (data → analysis → report) or independently.
 
+If you use these skills or find them helpful, please star this repo so I
+can see that they are useful.
+
 ## Installation
 
 Copy the skill folder(s) you want into the skills directory for your tool.
