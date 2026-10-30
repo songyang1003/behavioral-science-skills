@@ -26,7 +26,7 @@ path differs between the two.
 Use them together (data → analysis → report) or independently.
 
 If you use these skills or find them helpful and have a GitHub account,
-please star this repo so I can see that they are useful.
+please star this repo :)
 
 ## Installation
 
